@@ -5,16 +5,18 @@
  */
 package Conexion;
 
+import Banco.AccederCuenta;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import javax.swing.JFrame;
 
 /**
  *
  * @author SERGIO MALDONADO
  */
 public class ConectarBD {
-    Connection conexion;
+    public Connection conexion;
     public void conectar(){
         try{
             System.out.println("Intentando conectar");
@@ -35,4 +37,5 @@ public class ConectarBD {
             System.out.println("Error " + e.getMessage());
         }
     }
+   
 }
