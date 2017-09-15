@@ -25,6 +25,30 @@ public class Cuenta extends javax.swing.JFrame {
     ResultSet Tarjeta = null;
     String estado = "";
     DefaultTableModel modelo;
+    
+    public Cuenta() {
+        initComponents();
+    }
+    public Cuenta(Connection conex,ResultSet cuent) {
+        initComponents();
+        conexion = conex;
+        DatosCuenta = cuent;
+        mostrarDatosCuenta();
+        modelo = (DefaultTableModel) Movimientos.getModel();
+        mostrarMovimientos();
+        try {
+            if(Tarjeta.getString(5).equals("0")){
+                jButton1.setVisible(false);
+                jButton4.setVisible(false); 
+            }
+            if(DatosCuenta.getString(4).equals("0")){
+                jButton3.setVisible(false);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Cuenta.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
     public void mostrarDatosCuenta(){
         
         try {
@@ -77,29 +101,6 @@ public class Cuenta extends javax.swing.JFrame {
         } catch (SQLException ex) {
             Logger.getLogger(Cuenta.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-    public Cuenta() {
-        initComponents();
-    }
-    public Cuenta(Connection conex,ResultSet cuent) {
-        initComponents();
-        conexion = conex;
-        DatosCuenta = cuent;
-        mostrarDatosCuenta();
-        modelo = (DefaultTableModel) Movimientos.getModel();
-        mostrarMovimientos();
-        try {
-            if(Tarjeta.getString(5).equals("0")){
-                jButton1.setVisible(false);
-                jButton4.setVisible(false); 
-            }
-            if(DatosCuenta.getString(4).equals("0")){
-                jButton3.setVisible(false);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(Cuenta.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
     }
 
     /**
