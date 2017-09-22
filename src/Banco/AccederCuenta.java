@@ -6,6 +6,7 @@
 package Banco;
 import Conexion.ConectarBD;
 import java.awt.Dimension;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -88,6 +89,7 @@ public class AccederCuenta extends javax.swing.JFrame {
         NoCuenta = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
 
@@ -97,19 +99,21 @@ public class AccederCuenta extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(0, 204, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(500, 300));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Numero de Cuenta");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 107, -1, -1));
 
         NoCuenta.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        NoCuenta.setText("No.");
         NoCuenta.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         NoCuenta.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 NoCuentaKeyTyped(evt);
             }
         });
+        jPanel1.add(NoCuenta, new org.netbeans.lib.awtextra.AbsoluteConstraints(242, 104, 246, -1));
 
         jButton1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/c-power-on@0.5x.png"))); // NOI18N
@@ -119,6 +123,7 @@ public class AccederCuenta extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
+        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 165, 500, -1));
 
         jButton2.setBackground(new java.awt.Color(0, 204, 255));
         jButton2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
@@ -131,33 +136,12 @@ public class AccederCuenta extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
+        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 213, 500, 53));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addGap(28, 28, 28)
-                .addComponent(NoCuenta, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
-                .addContainerGap())
-            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(98, 98, 98)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(NoCuenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(34, 34, 34))
-        );
+        jLabel2.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabel2.setText("No.");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 107, -1, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, -1, -1));
 
@@ -222,6 +206,12 @@ public class AccederCuenta extends javax.swing.JFrame {
 
     private void NoCuentaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_NoCuentaKeyTyped
         // TODO add your handling code here:
+        
+        char letra = evt.getKeyChar();
+        if(((letra < '0') || (letra > '9')) && (letra != KeyEvent.VK_BACK_SPACE) && (letra !='.')){
+            //System.out.println("Entro al condicion evento");
+            evt.consume();
+        }
     }//GEN-LAST:event_NoCuentaKeyTyped
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -274,6 +264,7 @@ public class AccederCuenta extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 }

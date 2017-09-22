@@ -39,10 +39,6 @@ public class Cuenta extends javax.swing.JFrame {
         modelo = (DefaultTableModel) Movimientos.getModel();
         mostrarMovimientos();
         try {
-            if(Tarjeta.getString(5).equals("0")){
-                jButton1.setVisible(false);
-                jButton4.setVisible(false); 
-            }
             if(DatosCuenta.getString(4).equals("0")){
                 jButton3.setVisible(false);
             }
@@ -95,12 +91,22 @@ public class Cuenta extends javax.swing.JFrame {
             modelo.addRow(new Object[]{"0","No","Hay","Movimientos"});
             while(mov.next()!=false){
                 modelo.setRowCount(0);
-                if(mov.getString(5).equals("1")){                   //1 es que es deposito
-                    tipom = "Deposito";
+                if(mov.getString(5).equals("1")){                   //1 es que es retiro cajero
+                    tipom = "Retiro Cajero";
                 }
-                else{                                               //si es 0 es retiro
-                    tipom = "Retiro";
+                else if(mov.getString(5).equals("2")){              //2 es retiro banco
+                    tipom = "Retiro Efectivo";
                 }
+                else if(mov.getString(5).equals("3")){              //3 es deposito banco
+                    tipom = "Deposito Efectivo";
+                }
+                else if(mov.getString(5).equals("4")){              //4 es Deposito con Cheque
+                    tipom = "Retiro Cheque";
+                }
+                else if(mov.getString(5).equals("5")){              //5 es retiro con cheque
+                    tipom = "Depostivo Cheque";
+                }
+                
                 modelo.addRow(new Object[]{cont,mov.getString(3),tipom,mov.getString(4)});
             }
         } catch (SQLException ex) {
@@ -312,9 +318,14 @@ public class Cuenta extends javax.swing.JFrame {
                 .addContainerGap(68, Short.MAX_VALUE))
         );
 
-        jButton2.setText("Deposito");
+        jButton2.setText("Realizar Movimiento");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
-        jButton3.setText("Retiro");
+        jButton3.setText("Realizar Movimiento con  Cheque");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -329,9 +340,10 @@ public class Cuenta extends javax.swing.JFrame {
                             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(167, 167, 167)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(145, 145, 145)
+                        .addComponent(jButton2)))
                 .addGap(28, 28, 28)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -345,9 +357,9 @@ public class Cuenta extends javax.swing.JFrame {
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(24, 24, 24)
-                        .addComponent(jButton2)
                         .addGap(18, 18, 18)
+                        .addComponent(jButton2)
+                        .addGap(24, 24, 24)
                         .addComponent(jButton3))
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(71, 71, 71))
@@ -384,6 +396,7 @@ public class Cuenta extends javax.swing.JFrame {
                 }
                 JOptionPane.showMessageDialog(null, "Se ha Tramitado la Tarjeta\n" +
                                                         "Codigo: " + Codigo.getText() + " Pin: " + Pin.getText());
+                jButton4.setEnabled(false);
             } catch (SQLException ex) {
                 Logger.getLogger(NuevaCuenta.class.getName()).log(Level.SEVERE, null, ex);
                 JOptionPane.showMessageDialog(null, "Error Inesperado");
@@ -419,6 +432,10 @@ public class Cuenta extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments

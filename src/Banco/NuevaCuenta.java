@@ -27,6 +27,8 @@ public class NuevaCuenta extends javax.swing.JFrame {
     DefaultTableModel modelo;
     Connection conexion;
     int max = 5;
+    String numeroC = "";
+    String numeroT = "";
     public NuevaCuenta() {
         initComponents();
     }
@@ -47,19 +49,27 @@ public class NuevaCuenta extends javax.swing.JFrame {
                 num = Integer.parseInt(numero.getString(1))+1;
                 if(num<10){
                     NoCuenta.setText("No.000" + num);
+                    numeroC = "000"+num;
+                    numeroT = "000"+num;
                     NoTarjeta.setText("Cod.000" + num);
                 }
                 else if(num<100){
                     NoCuenta.setText("No.00" + num);
                     NoTarjeta.setText("Cod.00" + num);
+                    numeroC = "00"+num;
+                    numeroT = "00"+num;
                 }
                 else if(num<1000){
                     NoCuenta.setText("No.0" + num);
                     NoTarjeta.setText("Cod.0" + num);
+                    numeroC = "0"+num;
+                    numeroT = "0"+num;
                 }
                 else{
                     NoCuenta.setText("No." + num);
                     NoTarjeta.setText("Cod." + num);
+                    numeroC = ""+num;
+                    numeroT = ""+num;
                 }
                 
             }
@@ -74,7 +84,7 @@ public class NuevaCuenta extends javax.swing.JFrame {
         String a = "",b = "";
         try {
             Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-            cuent = sentencia.executeQuery("SELECT cuenta.Id FROM cuenta WHERE cuenta.Numero = '" + NoCuenta.getText() + "';" );
+            cuent = sentencia.executeQuery("SELECT cuenta.Id FROM cuenta WHERE cuenta.Numero = '" + numeroC + "';" );
             if(cuent.next()){
                     System.out.println("Si hay un next en cuenta");
                     System.out.println("ID " + cuent.getString(1));
@@ -106,10 +116,10 @@ public class NuevaCuenta extends javax.swing.JFrame {
         ResultSet cuent = null;
         try {
             Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-            cuent = sentencia.executeQuery("SELECT cuenta.Id FROM cuenta WHERE cuenta.Numero = '" + NoCuenta.getText() + "';" );
+            cuent = sentencia.executeQuery("SELECT cuenta.Id FROM cuenta WHERE cuenta.Numero = '" + numeroC + "';" );
             cuent.next();
             Instruccion = "INSERT INTO tarjeta (tarjeta.Cuenta_Id,tarjeta.Codigo,tarjeta.PIN,tarjeta.Activo) VALUES (" 
-                    + cuent.getString(1) + ",'" + NoTarjeta.getText() + "','" + Pin.getText() + "'," + Ac + ");";
+                    + cuent.getString(1) + ",'" + numeroT + "','" + Pin.getText() + "'," + Ac + ");";
         } catch (SQLException ex) {
             Logger.getLogger(Cuenta.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -449,7 +459,7 @@ public class NuevaCuenta extends javax.swing.JFrame {
         // TODO add your handling code here:
         Statement sentencia = null;
         String Instruccion = "", Instruccion1 = "", Instruccion2, Instruccion3 = "";
-        String NumeroC = NoCuenta.getText();
+        String NumeroC = numeroC;
         String Sald = Saldo.getText();
         PreparedStatement pst = null;
         if((NumeroC.equals(""))&&(Sald.equals(""))){
