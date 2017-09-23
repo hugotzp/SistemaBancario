@@ -88,9 +88,12 @@ public class Cuenta extends javax.swing.JFrame {
             
             Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             mov = sentencia.executeQuery("SELECT * FROM movimiento WHERE movimiento.Cuenta_Id = " + DatosCuenta.getString(1)+ ";" );
-            modelo.addRow(new Object[]{"0","No","Hay","Movimientos"});
+            modelo.setRowCount(0);
+            if(mov.next()==false){
+                modelo.addRow(new Object[]{"0","No","Hay","Movimientos"});
+            }
+            mov.previous();
             while(mov.next()!=false){
-                modelo.setRowCount(0);
                 if(mov.getString(5).equals("1")){                   //1 es que es retiro cajero
                     tipom = "Retiro Cajero";
                 }
@@ -100,14 +103,14 @@ public class Cuenta extends javax.swing.JFrame {
                 else if(mov.getString(5).equals("3")){              //3 es deposito banco
                     tipom = "Deposito Efectivo";
                 }
-                else if(mov.getString(5).equals("4")){              //4 es Deposito con Cheque
+                else if(mov.getString(5).equals("4")){              //4 es Retiro con Cheque
                     tipom = "Retiro Cheque";
                 }
-                else if(mov.getString(5).equals("5")){              //5 es retiro con cheque
+                else if(mov.getString(5).equals("5")){              //5 es Deposto con cheque
                     tipom = "Depostivo Cheque";
                 }
-                
                 modelo.addRow(new Object[]{cont,mov.getString(3),tipom,mov.getString(4)});
+                cont++;
             }
         } catch (SQLException ex) {
             Logger.getLogger(Cuenta.class.getName()).log(Level.SEVERE, null, ex);
@@ -147,7 +150,12 @@ public class Cuenta extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Datos de la Cuenta"));
 
@@ -318,7 +326,7 @@ public class Cuenta extends javax.swing.JFrame {
                 .addContainerGap(68, Short.MAX_VALUE))
         );
 
-        jButton2.setText("Realizar Movimiento");
+        jButton2.setText("Realizar Movimiento en Efectivo");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -326,6 +334,11 @@ public class Cuenta extends javax.swing.JFrame {
         });
 
         jButton3.setText("Realizar Movimiento con  Cheque");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -339,11 +352,10 @@ public class Cuenta extends javax.swing.JFrame {
                             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(167, 167, 167)
-                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(145, 145, 145)
-                        .addComponent(jButton2)))
+                        .addGap(118, 118, 118)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE)
+                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addGap(28, 28, 28)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -357,9 +369,9 @@ public class Cuenta extends javax.swing.JFrame {
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton2)
                         .addGap(24, 24, 24)
+                        .addComponent(jButton2)
+                        .addGap(18, 18, 18)
                         .addComponent(jButton3))
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(71, 71, 71))
@@ -435,7 +447,21 @@ public class Cuenta extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
+        new MovimientoE(conexion,DatosCuenta).setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        
+        this.dispose();
+    }//GEN-LAST:event_formWindowClosing
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        new MovimientoC(conexion,DatosCuenta).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments

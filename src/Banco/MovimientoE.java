@@ -25,6 +25,7 @@ public class MovimientoE extends javax.swing.JFrame {
      */
     Connection conexion;
     ResultSet cuenta;
+    float SaldoC;
     //int tipo = 2;
     public void DepositoE(){
         String Instruccion = "",Instruccion2 = "";
@@ -46,7 +47,7 @@ public class MovimientoE extends javax.swing.JFrame {
                 a = pst.executeUpdate();
                     
                  //Update a la cuenta
-                Instruccion2 = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo + " + monto + "WHERE cuenta.Id = " + cuenta.getString(1) + ";";
+                Instruccion2 = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo + " + monto + " WHERE cuenta.Id = " + cuenta.getString(1) + ";";
                 pst = conexion.prepareStatement(Instruccion2);
                 a = pst.executeUpdate();
                     
@@ -55,6 +56,7 @@ public class MovimientoE extends javax.swing.JFrame {
                 a = pst.executeUpdate();
                 System.out.println("Se logró el commit");
                 JOptionPane.showMessageDialog(null, "Se ha realizado el Movimiento a la cuenta " + cuenta.getString(2));
+                SaldoC = SaldoC + Float.parseFloat(monto);
             } catch (SQLException ex) {
                 System.err.println("ERROR: " + ex.getMessage());
                 try {
@@ -72,14 +74,14 @@ public class MovimientoE extends javax.swing.JFrame {
         }
     }
     public void RetiroE(){
-        try {
+
             String Instruccion = "",Instruccion2 = "";
             String monto = Monto.getText();
             PreparedStatement pst = null;
             if(monto.equals("")){
                 JOptionPane.showMessageDialog(null, "Campo Vacio");
             }
-            else if (Integer.parseInt(monto)>Integer.parseInt(cuenta.getString(5))){
+            else if (Float.parseFloat(monto)>SaldoC){
                 JOptionPane.showMessageDialog(null, "La cuenta no tiene saldo suficiente para realizar esta operacion");
             }
             else{
@@ -96,7 +98,7 @@ public class MovimientoE extends javax.swing.JFrame {
                     a = pst.executeUpdate();
                     
                     //Update a la cuenta
-                    Instruccion2 = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - " + monto + "WHERE cuenta.Id = " + cuenta.getString(1) + ";";
+                    Instruccion2 = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - " + monto + " WHERE cuenta.Id = " + cuenta.getString(1) + ";";
                     pst = conexion.prepareStatement(Instruccion2);
                     a = pst.executeUpdate();
                     
@@ -105,6 +107,7 @@ public class MovimientoE extends javax.swing.JFrame {
                     a = pst.executeUpdate();
                     System.out.println("Se logró el commit");
                     JOptionPane.showMessageDialog(null, "Se ha realizado el Movimiento a la cuenta " + cuenta.getString(2));
+                    SaldoC = SaldoC - Float.parseFloat(monto);
                 } catch (SQLException ex) {
                     System.err.println("ERROR: " + ex.getMessage());
                     try {
@@ -120,9 +123,6 @@ public class MovimientoE extends javax.swing.JFrame {
                     Logger.getLogger(MovimientoE.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(MovimientoE.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
     public MovimientoE() {
         initComponents();
@@ -133,6 +133,7 @@ public class MovimientoE extends javax.swing.JFrame {
         cuenta = cuen;
         try {
             NoCuenta.setText(cuenta.getString(2));
+            SaldoC = Float.parseFloat(cuenta.getString(5));
         } catch (SQLException ex) {
             Logger.getLogger(MovimientoE.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -156,7 +157,12 @@ public class MovimientoE extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         NoCuenta = new javax.swing.JTextField();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Efectivo"));
 
@@ -279,6 +285,12 @@ public class MovimientoE extends javax.swing.JFrame {
             RetiroE();
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        new Cuenta(conexion,cuenta).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments

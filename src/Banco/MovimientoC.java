@@ -5,6 +5,15 @@
  */
 package Banco;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author SERGIO MALDONADO
@@ -14,10 +23,145 @@ public class MovimientoC extends javax.swing.JFrame {
     /**
      * Creates new form MovimientoC
      */
+    Connection conexion;
+    ResultSet cuenta;
+    float SaldoC;
     public MovimientoC() {
         initComponents();
     }
+    public MovimientoC(Connection conex, ResultSet dcuen) {
+        initComponents();
+        conexion = conex;
+        cuenta = dcuen;
+        jLabel3.setVisible(false);
+        NoCuentaC.setVisible(false);
+        try {
+            NoCuenta.setText(cuenta.getString(2));
+            SaldoC = Float.parseFloat(cuenta.getString(5));
+        } catch (SQLException ex) {
+            Logger.getLogger(MovimientoC.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public void ChequeE(){
+        String Instruccion = "",Instruccion2 = "";
+        String monto = Monto.getText();
+        PreparedStatement pst = null;
+        if(monto.equals("")){
+            JOptionPane.showMessageDialog(null, "Campo Vacio");
+        }
+        else if (Float.parseFloat(monto)>SaldoC){
+            JOptionPane.showMessageDialog(null, "La cuenta no tiene saldo suficiente para realizar esta operacion");
+        }
+        else{
+            try {
+                //Iniciamos Transaccion
+                pst = conexion.prepareStatement("START TRANSACTION");
+                int a = pst.executeUpdate();
 
+                //Insert al movimiento
+                Instruccion = "INSERT INTO movimiento (movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES (" +
+                        cuenta.getString(1) + ",NOW()," + monto + "," + "4" + ");";
+
+                pst = conexion.prepareStatement(Instruccion);
+                a = pst.executeUpdate();
+
+                //Update a la cuenta
+                Instruccion2 = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - " + monto + " WHERE cuenta.Id = " + cuenta.getString(1) + ";";
+                pst = conexion.prepareStatement(Instruccion2);
+                a = pst.executeUpdate();
+
+                //Hacemos commit
+                pst = conexion.prepareStatement("COMMIT");
+                a = pst.executeUpdate();
+                System.out.println("Se logró el commit");
+                JOptionPane.showMessageDialog(null, "Se ha realizado el Movimiento a la cuenta " + cuenta.getString(2));
+                SaldoC = SaldoC - Float.parseFloat(monto);
+            } catch (SQLException ex) {
+                System.err.println("ERROR: " + ex.getMessage());
+                try {
+                    pst = conexion.prepareStatement("ROLLBACK;");
+                    int b = pst.executeUpdate();
+                    System.out.println("Se logró el Rollback");
+                    JOptionPane.showMessageDialog(null, "Error Inesperado");
+                    //conexion.rollback();
+                } catch (SQLException ex1) {
+                    Logger.getLogger(MovimientoC.class.getName()).log(Level.SEVERE, null, ex1);
+                    System.out.println("No se pudo realizar el Rollback");
+                }
+                Logger.getLogger(MovimientoC.class.getName()).log(Level.SEVERE, null, ex);
+            }               
+        }
+    }
+    public void ChequeD(){
+        String Instruccion = "",Instruccion1 = "",Instruccion2 = "", Instruccion3 = "";
+        String NoC = NoCheque.getText();
+        String monto = Monto.getText();
+        String Cuenta2 = NoCuentaC.getText();
+        PreparedStatement pst = null;
+        ResultSet noMov = null;
+        if((monto.equals(""))&&(NoC.equals(""))){
+            JOptionPane.showMessageDialog(null, "Campo Vacio");
+        }
+        else if (Float.parseFloat(monto)>SaldoC){
+            JOptionPane.showMessageDialog(null, "La cuenta no tiene saldo suficiente para realizar esta operacion");
+        }
+        else{
+            try {
+                 //Iniciamos Transaccion
+                pst = conexion.prepareStatement("START TRANSACTION");
+                int a = pst.executeUpdate();
+                
+                //Insert al movimiento de retiro de cheque
+                Instruccion = "INSERT INTO movimiento (movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES (" +
+                                cuenta.getString(1) + ",NOW()," + monto + "," + "4" + ");";
+                pst = conexion.prepareStatement(Instruccion);
+                a = pst.executeUpdate();
+                
+                //Insert del movimiento de deposito de cheque
+                Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+                noMov = sentencia.executeQuery("SELECT * FROM cuenta WHERE cuenta.Numero = '" + Cuenta2+ "';" );
+                noMov.next();
+                Instruccion1 = "INSERT INTO movimiento (movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES (" +
+                                noMov.getString(1) + ",NOW()," + monto + "," + "5" + ");";
+                pst = conexion.prepareStatement(Instruccion1);
+                a = pst.executeUpdate();
+                
+                 //Update a la cuenta de retiro de cheque
+                Instruccion2 = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - " + monto + " WHERE cuenta.Id = " + cuenta.getString(1) + ";";
+                pst = conexion.prepareStatement(Instruccion2);
+                a = pst.executeUpdate();
+                
+                //Update a la cuenta de deposito de cheque
+               Instruccion3 = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo + " + monto + " WHERE cuenta.Id = " + noMov.getString(1) + ";";
+                pst = conexion.prepareStatement(Instruccion3);
+                a = pst.executeUpdate();
+                
+                //Insert al del cheque Pendiente
+                
+                
+                
+                //Hacemos commit
+                pst = conexion.prepareStatement("COMMIT");
+                a = pst.executeUpdate();
+                System.out.println("Se logró el commit");
+                JOptionPane.showMessageDialog(null, "Se ha realizado el Movimiento a la cuenta " + cuenta.getString(2));
+                SaldoC = SaldoC - Float.parseFloat(monto);
+            } catch (SQLException ex) {
+                System.err.println("ERROR: " + ex.getMessage());
+                try {
+                    pst = conexion.prepareStatement("ROLLBACK;");
+                    int b = pst.executeUpdate();
+                    System.out.println("Se logró el Rollback");
+                    JOptionPane.showMessageDialog(null, "Error Inesperado");
+                    //conexion.rollback();
+                } catch (SQLException ex1) {
+                    Logger.getLogger(MovimientoC.class.getName()).log(Level.SEVERE, null, ex1);
+                    System.out.println("No se pudo realizar el Rollback");
+                }
+                Logger.getLogger(MovimientoC.class.getName()).log(Level.SEVERE, null, ex);
+            }   
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -41,27 +185,47 @@ public class MovimientoC extends javax.swing.JFrame {
         Monto = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Cheque"));
 
         jLabel1.setText("Tipo");
 
         Tipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Cheque en Efectivo", "Depositar Cheque" }));
+        Tipo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TipoActionPerformed(evt);
+            }
+        });
 
-        jLabel2.setText("NoCuenta");
+        jLabel2.setText("NoCuenta del Cheque");
 
         NoCuenta.setEditable(false);
 
-        jLabel3.setText("NoCuenta del Cheque");
+        jLabel3.setText("NoCuenta a Depositar");
 
         jButton1.setText("Aceptar");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jLabel4.setText("No.Cheque");
 
-        jLabel5.setText("jLabel5");
+        jLabel5.setText("Monto");
 
         jButton2.setText("Cancelar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -83,18 +247,19 @@ public class MovimientoC extends javax.swing.JFrame {
                                     .addComponent(NoCheque)
                                     .addComponent(Monto, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addGap(80, 80, 80)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel1))
+                                .addGap(18, 18, 18)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(Tipo, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(NoCuenta, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(jLabel1)))
+                                    .addComponent(NoCuenta, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(156, 156, 156)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE))))
-                .addContainerGap(166, Short.MAX_VALUE))
+                .addContainerGap(228, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -103,11 +268,15 @@ public class MovimientoC extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(NoCuenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(21, 21, 21)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(Tipo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(10, 10, 10)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(jLabel1)
+                        .addGap(13, 13, 13))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Tipo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(NoCuentaC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -133,7 +302,7 @@ public class MovimientoC extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(22, 22, 22)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(76, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -145,6 +314,41 @@ public class MovimientoC extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        new Cuenta(conexion,cuenta).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_formWindowClosing
+
+    private void TipoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TipoActionPerformed
+        // TODO add your handling code here:
+        if(Tipo.getSelectedIndex()==1){
+            jLabel3.setVisible(true);
+            NoCuentaC.setVisible(true);
+        }
+        if(Tipo.getSelectedIndex()==0){
+            jLabel3.setVisible(false);
+            NoCuentaC.setVisible(false);
+        }
+    }//GEN-LAST:event_TipoActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        if(Tipo.getSelectedIndex()==0){
+            ChequeE();
+        }
+        if(Tipo.getSelectedIndex()==1){
+            ChequeD();
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        NoCuentaC.setText("");
+        NoCheque.setText("");
+        Monto.setText("");
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments

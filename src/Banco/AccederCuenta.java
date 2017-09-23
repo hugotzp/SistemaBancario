@@ -181,7 +181,7 @@ public class AccederCuenta extends javax.swing.JFrame {
                 Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
                 Cuenta1 = sentencia.executeQuery("SELECT * FROM cuenta WHERE cuenta.Numero = '" + num + "';");
                 if(Cuenta1.next()){
-                    this.setEnabled(false);
+                    //this.setEnabled(false);
                     new Cuenta(conexion,Cuenta1).setVisible(true);
                     
                 }
@@ -217,7 +217,7 @@ public class AccederCuenta extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         this.setEnabled(false);
-        new NuevaCuenta(conexion).setVisible(true);
+        new NuevaCuenta(conexion,this).setVisible(true);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
