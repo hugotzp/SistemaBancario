@@ -5,6 +5,7 @@
  */
 package Cajero;
 
+import Bitacora.Transaccion;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,6 +19,7 @@ import java.util.logging.Logger;
 public class Retiro extends javax.swing.JPanel {
     Connection conexion;
     PrincipalCajero padre;
+    private Transaccion bitacora;
     /**
      * Creates new form Retiro
      */
@@ -29,6 +31,7 @@ public class Retiro extends javax.swing.JPanel {
         initComponents();
         this.padre = padre;
         this.conexion = conexion;
+        bitacora = new Transaccion(conexion);
     }
 
     /**
@@ -156,18 +159,28 @@ public class Retiro extends javax.swing.JPanel {
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
         try {
             conexion.createStatement().executeUpdate("START TRANSACTION");
-            ResultSet Rsaldo = conexion.createStatement().executeQuery("SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";");
+            bitacora.iniciar();
+            String instruccion = "SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";";
+            bitacora.almacenarSentenciaSQL(instruccion);
+            ResultSet Rsaldo = conexion.createStatement().executeQuery(instruccion);
             Rsaldo.next();
             if(Rsaldo.getFloat(1)>=100){
-                conexion.createStatement().executeUpdate("UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - 100 WHERE cuenta.Id = "+padre.Id+";");
-                conexion.createStatement().executeUpdate("INSERT INTO movimiento(movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES ("+padre.Id+",NOW(),"+100+",1);");
+                instruccion = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - 100 WHERE cuenta.Id = "+padre.Id+";";
+                bitacora.almacenarSentenciaSQL(instruccion);
+                conexion.createStatement().executeUpdate(instruccion);
+                instruccion = "INSERT INTO movimiento(movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES ("+padre.Id+",NOW(),"+100+",1);";
+                bitacora.almacenarSentenciaSQL(instruccion);
+                conexion.createStatement().executeUpdate(instruccion);
                 conexion.createStatement().executeUpdate("COMMIT");
+                bitacora.finalizar(Transaccion.COMPROMETIDA);
                 padre.mensaje("<html><body>Transacción Realizada<br>Que tenga un buen dia</body></html>", 1);
             }else{
                 conexion.createStatement().executeUpdate("ROLLBACK");
+                bitacora.finalizar(Transaccion.ABORTADA);
                 padre.mensaje("<html><body>Lo sentimos no tiene<br>fondos suficientes<br>Que tenga un buen dia</body></html>", 1);
             }
         } catch (SQLException ex) {
+            bitacora.finalizar(Transaccion.FALLIDA);
             Logger.getLogger(Retiro.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jLabel2MouseClicked
@@ -178,95 +191,150 @@ public class Retiro extends javax.swing.JPanel {
 
     private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
         try {
+            String instruccion;
             conexion.createStatement().executeUpdate("START TRANSACTION");
-            ResultSet Rsaldo = conexion.createStatement().executeQuery("SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";");
+            bitacora.iniciar();
+            instruccion = "SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";";
+            bitacora.almacenarSentenciaSQL(instruccion);
+            ResultSet Rsaldo = conexion.createStatement().executeQuery(instruccion);
             Rsaldo.next();
             if(Rsaldo.getFloat(1)>=200){
-                conexion.createStatement().executeUpdate("UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - 200 WHERE cuenta.Id = "+padre.Id+";");
-                conexion.createStatement().executeUpdate("INSERT INTO movimiento(movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES ("+padre.Id+",NOW(),"+200+",1);");
+                instruccion = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - 200 WHERE cuenta.Id = "+padre.Id+";";
+                bitacora.almacenarSentenciaSQL(instruccion);
+                conexion.createStatement().executeUpdate(instruccion);
+                instruccion = "INSERT INTO movimiento(movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES ("+padre.Id+",NOW(),"+200+",1);";
+                bitacora.almacenarSentenciaSQL(instruccion);
+                conexion.createStatement().executeUpdate(instruccion);
                 conexion.createStatement().executeUpdate("COMMIT");
+                bitacora.finalizar(Transaccion.COMPROMETIDA);
                 padre.mensaje("<html><body>Transacción Realizada<br>Que tenga un buen dia</body></html>", 1);
             }else{
                 conexion.createStatement().executeUpdate("ROLLBACK");
+                bitacora.finalizar(Transaccion.ABORTADA);
                 padre.mensaje("<html><body>Lo sentimos no tiene<br>fondos suficientes<br>Que tenga un buen dia</body></html>", 1);
             }
         } catch (SQLException ex) {
+            bitacora.finalizar(Transaccion.FALLIDA);
             Logger.getLogger(Retiro.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jLabel3MouseClicked
 
     private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
         try {
+            String instruccion;
             conexion.createStatement().executeUpdate("START TRANSACTION");
-            ResultSet Rsaldo = conexion.createStatement().executeQuery("SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";");
+            bitacora.iniciar();
+            instruccion = "SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";";
+            bitacora.almacenarSentenciaSQL(instruccion);
+            ResultSet Rsaldo = conexion.createStatement().executeQuery(instruccion);
             Rsaldo.next();
             if(Rsaldo.getFloat(1)>=300){
-                conexion.createStatement().executeUpdate("UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - 300 WHERE cuenta.Id = "+padre.Id+";");
-                conexion.createStatement().executeUpdate("INSERT INTO movimiento(movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES ("+padre.Id+",NOW(),"+300+",1);");
+                instruccion = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - 300 WHERE cuenta.Id = "+padre.Id+";";
+                bitacora.almacenarSentenciaSQL(instruccion);
+                conexion.createStatement().executeUpdate(instruccion);
+                instruccion = "INSERT INTO movimiento(movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES ("+padre.Id+",NOW(),"+300+",1);";
+                bitacora.almacenarSentenciaSQL(instruccion);
+                conexion.createStatement().executeUpdate(instruccion);
                 conexion.createStatement().executeUpdate("COMMIT");
+                bitacora.finalizar(Transaccion.COMPROMETIDA);
                 padre.mensaje("<html><body>Transacción Realizada<br>Que tenga un buen dia</body></html>", 1);
             }else{
                 conexion.createStatement().executeUpdate("ROLLBACK");
+                bitacora.finalizar(Transaccion.ABORTADA);
                 padre.mensaje("<html><body>Lo sentimos no tiene<br>fondos suficientes<br>Que tenga un buen dia</body></html>", 1);
             }
         } catch (SQLException ex) {
+            bitacora.finalizar(Transaccion.FALLIDA);
             Logger.getLogger(Retiro.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jLabel1MouseClicked
 
     private void jLabel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseClicked
         try {
+            String instruccion;
             conexion.createStatement().executeUpdate("START TRANSACTION");
-            ResultSet Rsaldo = conexion.createStatement().executeQuery("SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";");
+            bitacora.iniciar();
+            instruccion = "SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";";
+            bitacora.almacenarSentenciaSQL(instruccion);
+            ResultSet Rsaldo = conexion.createStatement().executeQuery(instruccion);
             Rsaldo.next();
             if(Rsaldo.getFloat(1)>=500){
-                conexion.createStatement().executeUpdate("UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - 500 WHERE cuenta.Id = "+padre.Id+";");
-                conexion.createStatement().executeUpdate("INSERT INTO movimiento(movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES ("+padre.Id+",NOW(),"+500+",1);");
+                instruccion = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - 500 WHERE cuenta.Id = "+padre.Id+";";
+                bitacora.almacenarSentenciaSQL(instruccion);
+                conexion.createStatement().executeUpdate(instruccion);
+                instruccion = "INSERT INTO movimiento(movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES ("+padre.Id+",NOW(),"+500+",1);";
+                bitacora.almacenarSentenciaSQL(instruccion);
+                conexion.createStatement().executeUpdate(instruccion);
                 conexion.createStatement().executeUpdate("COMMIT");
+                bitacora.finalizar(Transaccion.COMPROMETIDA);
                 padre.mensaje("<html><body>Transacción Realizada<br>Que tenga un buen dia</body></html>", 1);
             }else{
                 conexion.createStatement().executeUpdate("ROLLBACK");
+                bitacora.finalizar(Transaccion.ABORTADA);
                 padre.mensaje("<html><body>Lo sentimos no tiene<br>fondos suficientes<br>Que tenga un buen dia</body></html>", 1);
             }
         } catch (SQLException ex) {
+            bitacora.finalizar(Transaccion.FALLIDA);
             Logger.getLogger(Retiro.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jLabel5MouseClicked
 
     private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
         try {
+            String instruccion;
             conexion.createStatement().executeUpdate("START TRANSACTION");
-            ResultSet Rsaldo = conexion.createStatement().executeQuery("SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";");
+            bitacora.iniciar();
+            instruccion = "SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";";
+            bitacora.almacenarSentenciaSQL(instruccion);
+            ResultSet Rsaldo = conexion.createStatement().executeQuery(instruccion);
             Rsaldo.next();
             if(Rsaldo.getFloat(1)>=1000){
-                conexion.createStatement().executeUpdate("UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - 1000 WHERE cuenta.Id = "+padre.Id+";");
-                conexion.createStatement().executeUpdate("INSERT INTO movimiento(movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES ("+padre.Id+",NOW(),"+1000+",1);");
+                instruccion = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - 1000 WHERE cuenta.Id = "+padre.Id+";";
+                bitacora.almacenarSentenciaSQL(instruccion);
+                conexion.createStatement().executeUpdate(instruccion);
+                instruccion = "INSERT INTO movimiento(movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES ("+padre.Id+",NOW(),"+1000+",1);";
+                bitacora.almacenarSentenciaSQL(instruccion);
+                conexion.createStatement().executeUpdate(instruccion);
                 conexion.createStatement().executeUpdate("COMMIT");
+                bitacora.finalizar(Transaccion.COMPROMETIDA);
                 padre.mensaje("<html><body>Transacción Realizada<br>Que tenga un buen dia</body></html>", 1);
             }else{
                 conexion.createStatement().executeUpdate("ROLLBACK");
+                bitacora.finalizar(Transaccion.ABORTADA);
                 padre.mensaje("<html><body>Lo sentimos no tiene<br>fondos suficientes<br>Que tenga un buen dia</body></html>", 1);
             }
         } catch (SQLException ex) {
+            bitacora.finalizar(Transaccion.FALLIDA);
             Logger.getLogger(Retiro.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jLabel6MouseClicked
 
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
         try {
+            String instruccion;
             conexion.createStatement().executeUpdate("START TRANSACTION");
-            ResultSet Rsaldo = conexion.createStatement().executeQuery("SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";");
+            bitacora.iniciar();
+            instruccion = "SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";";
+            bitacora.almacenarSentenciaSQL(instruccion);
+            ResultSet Rsaldo = conexion.createStatement().executeQuery(instruccion);
             Rsaldo.next();
             if(Rsaldo.getFloat(1)>=2000){
-                conexion.createStatement().executeUpdate("UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - 2000 WHERE cuenta.Id = "+padre.Id+";");
-                conexion.createStatement().executeUpdate("INSERT INTO movimiento(movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES ("+padre.Id+",NOW(),"+2000+",1);");
+                instruccion = "UPDATE cuenta SET cuenta.Saldo = cuenta.Saldo - 2000 WHERE cuenta.Id = "+padre.Id+";";
+                bitacora.almacenarSentenciaSQL(instruccion);
+                conexion.createStatement().executeUpdate(instruccion);
+                instruccion = "INSERT INTO movimiento(movimiento.Cuenta_Id,movimiento.Fecha,movimiento.Monto,movimiento.Tipo) VALUES ("+padre.Id+",NOW(),"+2000+",1);";
+                bitacora.almacenarSentenciaSQL(instruccion);
+                conexion.createStatement().executeUpdate(instruccion);
                 conexion.createStatement().executeUpdate("COMMIT");
+                bitacora.finalizar(Transaccion.COMPROMETIDA);
                 padre.mensaje("<html><body>Transacción Realizada<br>Que tenga un buen dia</body></html>", 1);
             }else{
                 conexion.createStatement().executeUpdate("ROLLBACK");
+                bitacora.finalizar(Transaccion.ABORTADA);
                 padre.mensaje("<html><body>Lo sentimos no tiene<br>fondos suficientes<br>Que tenga un buen dia</body></html>", 1);
             }
         } catch (SQLException ex) {
+            bitacora.finalizar(Transaccion.FALLIDA);
             Logger.getLogger(Retiro.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jLabel4MouseClicked
