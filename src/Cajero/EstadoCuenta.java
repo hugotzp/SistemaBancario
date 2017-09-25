@@ -5,6 +5,7 @@
  */
 package Cajero;
 
+import Bitacora.Transaccion;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,6 +19,7 @@ import java.util.logging.Logger;
 public class EstadoCuenta extends javax.swing.JPanel {
     Connection conexion;
     PrincipalCajero padre;
+    Transaccion bitacora;
     /**
      * Creates new form EstadoCuenta
      */
@@ -30,11 +32,16 @@ public class EstadoCuenta extends javax.swing.JPanel {
             initComponents();
             this.padre = padre;
             this.conexion = conexion;
+            bitacora = new Transaccion(conexion);
             conexion.createStatement().executeUpdate("START TRANSACTION");
-            ResultSet Rsaldo = conexion.createStatement().executeQuery("SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";");
+            bitacora.iniciar();
+            String instruccion = "SELECT cuenta.Saldo FROM cuenta WHERE cuenta.Id = "+padre.Id+";";
+            bitacora.almacenarSentenciaSQL(instruccion);
+            ResultSet Rsaldo = conexion.createStatement().executeQuery(instruccion);
             Rsaldo.next();
             Tx_saldo.setText("Q "+Rsaldo.getString(1));
         } catch (SQLException ex) {
+            bitacora.finalizar(Transaccion.FALLIDA);
             Logger.getLogger(EstadoCuenta.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -99,7 +106,9 @@ public class EstadoCuenta extends javax.swing.JPanel {
         try {
             conexion.createStatement().executeUpdate("COMMIT");
             padre.mensaje("Feliz dia", 1);
+            bitacora.finalizar(Transaccion.COMPROMETIDA);
         } catch (SQLException ex) {
+            bitacora.finalizar(Transaccion.FALLIDA);
             Logger.getLogger(EstadoCuenta.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jLabel3MouseClicked
